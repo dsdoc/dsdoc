@@ -13,7 +13,6 @@
    :maxdepth: 2
 
    paxoslease/index
-   test
 
 索引表
 ==================
