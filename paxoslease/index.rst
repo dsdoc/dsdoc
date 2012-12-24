@@ -1,7 +1,9 @@
+.. highlight:: c++
+
 .. _paxoslease:
 
 ===============================================
-PaxosLease算法: 实现租约的无盘Paxos算法
+【译】PaxosLease：实现租约的无盘Paxos算法
 ===============================================
 
 原文名：PaxosLease: Diskless Paxos for Leases
@@ -9,7 +11,7 @@ PaxosLease算法: 实现租约的无盘Paxos算法
 Marton Trencseni, mtrencseni@scalien.com
 Attila Gazso, agazso@scalien.com
 
-这篇论文描述了PaxosLease算法，一种用于租约协商的分布式算法。PaxosLease基于Paxos算法，但无需写盘和时钟同步。PaxosLease在开源分布式复制KV存储Keyspace中被用来做Master租约协商。
+这篇论文描述了PaxosLease算法，一种用于租约协商的分布式算法。PaxosLease基于Paxos算法，但无需写盘和时钟同步。PaxosLease在开源的分布式复制KV存储Keyspace中被用来做Master租约协商。
 
 .. _intro:
 
