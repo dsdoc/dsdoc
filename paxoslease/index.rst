@@ -1,3 +1,5 @@
+.. _paxoslease:
+
 ===============================================
 PaxosLease算法: 实现租约的无盘Paxos算法
 ===============================================
@@ -8,6 +10,8 @@ Marton Trencseni, mtrencseni@scalien.com
 Attila Gazso, agazso@scalien.com
 
 这篇论文描述了PaxosLease算法，一种用于租约协商的分布式算法。PaxosLease基于Paxos算法，但无需写盘和时钟同步。PaxosLease在开源分布式复制KV存储Keyspace中被用来做Master租约协商。
+
+.. _intro:
 
 1. 介绍
 =====================
@@ -42,16 +46,18 @@ PaxosLease是Paxos的一个自然特化变种。因为在Paxos中假设结点个
 类似于Paxos，PaxosLease本质上处理了所有有关的失效情况：
 
 1. 结点停止和重启
-2. 网络分割断开
+2. 网络分割不通
 3. 消息丢失和乱序
 4. 传输中的消息延时
+
+.. _definitions:
 
 2. 定义
 =====================
 
 一个PaxosLease单元由请求者和接受者组成。我们假设有 *n* 个接受者和任意个的请求者。在实践中，结点常常会同时扮演请求者和接受者的角色，但这是个实现上的问题不会影响这里的讨论。
 
-请求者发送 *准备请求* （Prepare Request）和 *提案请求* （Propose Request）消息给接受者；接受者回复的是 *准备响应* （Prepare Response）和 *提案响应* （Propose Response）消息。这些消息有下面的结构：
+请求者发送 *准备请求* （Prepare Request）和 *提案请求* （Propose Request）消息给接受者；接受者回应的是 *准备响应* （Prepare Response）和 *提案响应* （Propose Response）消息。这些消息有下面的结构：
 
 1. 准备请求 = 投票编号
 2. 提案请求 = 投票编号，响应结果，已经接受了的提案
@@ -71,9 +77,102 @@ PaxosLease是Paxos的一个自然特化变种。因为在Paxos中假设结点个
 
 PaxosLease保证了 *租约不变式* ：在任何给定的时间点，不会有多余1个请求者持有租约。
 
+.. _basic-algorithm:
+
 3. 基本算法
 =====================
 
+这一节描述分别从请求者和接受者出发的算法基本流程。请求者发送准备和提案请求，接受者回应准备和提案响应。如果一切正常和话，请求者获得租约花费两轮通信的时间。
+
+1. 一个请求者想要获得租约，时长 *T < M* 。它生成投票编号 ``[request.ballotNumber]``，然后发送准备请求给多数派的接受者。
+
+::
+
+    Proposer::Propose()
+    {
+        state.ballotNumber = NextBallotNumber()
+        request.type = PrepareRequest
+        request.ballotNumber = state.ballotNumber
+        Broadcast(request)
+    }
+
+2. 接受者，当收到准备请求时，检查 ``[request.ballotNumber]`` 是否大于自己在 ``[state.highestPromised]`` 里承诺的本地投票编号中的最大值。如果收到编号要低则可以丢弃这个消息，或者发送一个响应结果是 *拒绝* 的准备响应。如果相等或者更高，接受者用 *接受* 的回答构造一个准备响应，回答中有当前已接受的提案 ``[state.acceptedProposal]`` ，提案可以为空。接受者设置已承诺的最高投票编号 ``[state.highestPromised]`` 为 请求消息的投票编号 ``[request.ballotNumber]`` ，然后把这个准备响应发回给请求者。
+
+::
+
+    Acceptor::OnPrepareRequest()
+    {
+        if (request.ballotNumber < state.highestPromised)
+            return
+        state.highestPromised = request.ballotNumber
+        response.type = PrepareRespose
+        response.ballotNumber = request.ballotNumber
+        response.acceptedProposal = state.acceptedProposal // may be ’empty’
+        Send(response)
+    }
+
+3. 请求者检查从接受者过来的准备响应。如果有多数派的接受者响应的是空的提案，意味着他们可以接受新的提案，请求者可以提交它自己作为租约的获得者，时长是 *T* 。请求者启动一个定时器，过期时间是 *T* 秒，发送提案请求，其中包含了投票编号 和 租约（它自己的 *请求者id* 和 *T* ）。
+
+::
+
+    Proposer::OnPrepareResponse()
+    {
+        if (response.ballotNumber != state.ballotNumber)
+            return // some other proposal
+        if (response.acceptedProposal == ’empty’)
+        numOpen++
+        if (numOpen < majority)
+            return
+        state.timeout = T
+        SetTimeout(state.timeout)
+        request.type = ProposeRequest
+        request.ballotNumber = state.ballotNumber
+        request.proposal.proposerID = self.proposerID
+        request.proposal.timeout = state.timeout
+        Broadcast(request)
+    }
+    Proposer::OnTimeout()
+    {
+        state.ballotNumber = empty // set in Proposer::Propose()
+        state.leaseOwner = false // set in Proposer::OnProposeResponse()
+    }
+
+4. 接受者，当收到提议请求时，检查投票编号 ``[request.ballotNumber]`` 是否大于自己在 ``[state.highestPromised]`` 里承诺的本地投票编号中的最大值。如果收到编号要低则可以丢弃这个消息，或者发送一个响应结果是 *拒绝* 的提议响应。如果相等或者更高，接受者接受这个提议：启动过期时间T的超时计时，设置它已接受的提案为这个收到的提案（如果还存着前一个提案，丢弃掉）。接受者用 *接受* 的回答构造一个提议响应，回答中有投票编号 ``[request.ballotNumber]`` 。在超时过期后，接受者重置它已接受的提案为 *空* 。接受者决不重置它的已承诺的最高投票编号，除非在重启的时候。
+
+::
+
+    Acceptor::OnProposeRequest()
+    {
+        if (request.ballotNumber < state.highestPromised)
+            return
+        state.acceptedProposal = request.proposal
+        SetTimeout(state.acceptedProposal.timeout)
+        response.type = ProposeResponse
+        response.ballotNumber = request.ballotNumber
+        Send(response)
+    }
+    Acceptor::OnTimeout()
+    {
+        state.acceptedProposal = empty
+    }
+
+5. 请求者检查提议响应消息。如果有多数派的接受者响应了接受提案，则这个请求者获得了租约直到本地的定时器超时（在第3步中启动）。它收到多数派消息的最后一条的时间点就是它获得租约的时间点，可以切换它的内部状态到“我持有租约”。
+
+::
+
+    Proposer::OnProposeResponse()
+    {
+        if (response.ballotNumber != state.ballotNumber)
+            return // some other proposal
+        numAccepted++
+        if (numAccepted < majority)
+            return
+        state.leaseOwner = true // I am the lease owner
+    }
+
+可以看到，接受者没有把自己的状态存到存储上。重启时，请求者以空白状态启动。为了保证重启中结点不会破坏租约不变式，结点要在重新加入网络前等待 *M* 秒。 *M* 是一个全局已知最大租约时间，所有的结点都知道，请求者请求的租约时长 *T* 总是 *< M秒* 。
+
+.. _references:
 
 参考
 =====================
