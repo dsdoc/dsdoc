@@ -3,10 +3,12 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-分布式系统论文译文集
+分布式系统文档
 ===================================
 
-内容
+分布式系统论文翻译和文档整理。
+
+目录
 ==================
 
 .. toctree::
