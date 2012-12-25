@@ -1,4 +1,4 @@
-.. highlight:: js
+.. highlight:: c
 
 .. _paxoslease:
 
@@ -14,12 +14,10 @@
 :翻译:
     .. line-block::
 
-        `Jerry Lee <http://oldratlee.com>`_
+        `Jerry Lee oldratlee<at>gmail<dot>com <http://oldratlee.com>`_
 
 Marton Trencseni, mtrencseni@scalien.com
 Attila Gazso, agazso@scalien.com
-
-.. p
 
 这篇论文描述了PaxosLease算法，一种用于租约协商的分布式算法。PaxosLease基于Paxos算法，但无需写盘和时钟同步。PaxosLease在开源的分布式复制KV存储Keyspace中被用来做Master租约协商。
 
@@ -191,8 +189,20 @@ PaxosLease保证了 *租约不变式* ：在任何给定的时间点，不会有
 4. 租约不变式证明
 =====================
 
+首先我们给为什么PaxosLease可以工作的直觉感受。图2是画图的方式的解释：请求者在发送提议请求之前开启定时器，接受者只能 *一段时间后* 开启他们的定时器；接受者在发送提议响应之前开启定时器的。因此，如果有多数派的接受者存下了状态并开启定时器，在请求者定时器过期前，将没有其它的请求者可以得到租约。将没有2个请求者同时认为自己是租约的持有者。
 
+.. figure:: time-flow.png
+   :scale: 100
 
+   图2：一个请求者获得租约的时间流程图
+
+更正式地说，PaxosLease保证了如果请求者 `i` 的投票编号是 `b` 和 时长 `T` 的提案 从多数派的接受者那里接收到了接受消息，假定请求者在时间点 `t`:sub:`now` 启动定时器，那么没有其它请求者能接到多数派的接收消息直到 `t`:sub:`end` `= t`:sub:`start` `+ T` 。
+
+证明：假定请求者 `p` 用投票编号 `b` 获得了租约。它从多数派的接受者那里收到了类型是 `接受` 的空准备响应，在时间点 `t`:sub:`start` 启动定时器，在时间点 `t`:sub:`acquire` 从多数派的接受者那里收到了类型是 `接受` 的提议响应，这样请求者持有租约直到 `t`:sub:`end` `= t`:sub:`start` `+ T`。令 `A`:sub:`1` 为用空准备响应回应 `p` 的准备请求的接受者多数派，令 `A`:sub:`2` 为接受 `p` 提案 并且 发送类型是 `接受` 的准备响应 的接受者多数派。
+
+第一部分： 在 `t`:sub:`acquire` 到 `t`:sub:`end` 的时间内，没有其它的请求者 `q` 能以 `b' < b` 的投票编号的请求来获得租约。为了持有租约，请求者 `q` 必须得到多数派接受者 `A'`:sub:`2` 的接受。 令 `a` 为同时在 `A'`:sub:`2` 和 `A`:sub:`1` 的接受者。因为 `b' < b` ， `a` 必须是先接受了 `q` 的提案然后发送准备响应给 `p` 的。但是如果 `a` 发送一个空准备响应给 `p` 它的状态必须为空，它的定时器必须已经过期了，即 `q` 的定时器过期了，因此 `q` 已经失去了租约。在 `p` 和 `q` 的租约之间没有重叠。
+
+第二部分：在 `t`:sub:`acquire` 到 `t`:sub:`end` 的时间内，没有其它的请求者 `q` 能以 `b < b'` 的投票编号的请求来获得租约。为了持有租约，请求者 `q` 必须得到多数派接受者 `A'`:sub:`1` 给它发送空个准备响应。 令 `a` 为同时在 `A'`:sub:`1` 和 `A`:sub:`2` 的接受者。因为 `b < b'` ， `a` 必须是先接受了  `p` 的提案然后发送准备响应给 `q` 的。但是既然 `a` 接受了 `p` 的提案，如果它发送一个空个准备响应给 `q` 它的状态必须是空的，它的定时器必须已经过期了，即 `p` 的定时器过期了，因此 `p` 已经失去了租约。在 `p` 和 `q` 的租约之间没有重叠。
 
 .. _liveness:
 
@@ -234,15 +244,21 @@ Paxos类型的算法一个主要的优点是没有静态死锁，在朴素的投
 9. 实现
 =====================
 
-在Scalien的分布式复制key-value存储Keyspace中 [译]_ ，PaxosLease用于Master的租约协商。Keyspace作为PaxosLease的参考实现，包含了很多实践上的优化。由于基于开源AGPL许可，感兴趣的读者可以自由获取Keyspace实现。源代码和二进制文件可以在 http://scalien.com 下载。
+在Scalien的分布式复制key-value存储Keyspace中 [*]_\
+:sup:`译注`，PaxosLease用于Master的租约协商。Keyspace作为PaxosLease的参考实现，包含了很多实践上的优化。由于基于开源AGPL许可，感兴趣的读者可以自由获取Keyspace实现。源代码和二进制文件可以在 http://scalien.com 下载。
 
 .. _genealogy:
 
 10. 宗谱
 =====================
 
+Leslie Lamport在1990年发明Paxos算法，但在1998才发表的。这篇论文《The Part-Time Parliament》对于很多读者过于极客，这导致第二篇论文《Paxos Made Simple》。Paxos通过引入个准备和提议两个阶段和让接受者在响应消息前把自己状态写入稳定存储，解决了发布式一致性问题。多轮的Paxos可以顺序运行以协调复制状态机的状态转换。
 
+在论文《Paxos Made Live - An Engineering Perspective》和《The Chubby Lock
+Service for Loosely-Coupled Distributed Systems》中描述的Google内部的分布式实现栈用了Paxos，这让Paxos流行起来。在Google的Chubby中，多轮顺序执行Paxos以达到，在复制数据库中下次写操作上的一致性，提供了思考复制状态机的另一种方法。
 
+《FaTLease: Scalable Fault-Tolerant Lease Negotiation with
+Paxos》中描述的Fatlease解决了和PaxosLease一样的问题，但它结构更复杂，因为模仿了在Google论文中提到的多轮Paxos，而不是PaxosLease所用的简单的接受者状态超时。另外，FaTLease需要结点同步他们的时钟，这一点使的它在现实世界使用中没有吸引力。PaxosLease灵感来自于FaTLease，解决了上述的缺点。
 
 .. _references:
 
@@ -261,12 +277,9 @@ Paxos类型的算法一个主要的优点是没有静态死锁，在朴素的投
 
 .. [6] AGPL License. http://www.fsf.org/licensing/licenses/agpl-3.0.html
 
-注释
+注
 =====================
 
 .. [*] 另一个解决方法是，让系统阻塞，但是引入一个“撤销”机制，让一个请求者撤销他们的请求从而让某个请求者可以获得租约。
 
-译注
-=====================
-
-.. [译] scalien项目的GitHub工程在 https://github.com/scalien
+.. [*] 译注，scalien的GitHub代码工程在 https://github.com/scalien
