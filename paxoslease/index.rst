@@ -263,7 +263,7 @@ Paxos》中描述的Fatlease解决了和PaxosLease一样的问题，但它结构
 
 .. _references:
 
-参考
+参考文献
 =====================
 
 .. [1] L. Lamport, The Part-Time Parliament, ACM Transactions on Computer Systems 16, 2 (May 1998), 133-169.
@@ -278,7 +278,9 @@ Paxos》中描述的Fatlease解决了和PaxosLease一样的问题，但它结构
 
 .. [6] AGPL License. http://www.fsf.org/licensing/licenses/agpl-3.0.html
 
-注
+.. _note:
+
+注释
 =====================
 
 .. [*] 另一个解决方法是，让系统阻塞，但是引入一个“撤销”机制，让请求者撤销他的请求从而让其它某个请求者可以获得租约。
