@@ -245,7 +245,8 @@ Paxos类型的算法一个主要的优点是没有静态死锁，在朴素的投
 =====================
 
 在Scalien的分布式复制key-value存储Keyspace中 [*]_\
-:sup:`译注`，PaxosLease用于Master的租约协商。Keyspace作为PaxosLease的参考实现，包含了很多实践上的优化。由于基于开源AGPL许可，感兴趣的读者可以自由获取Keyspace实现。源代码和二进制文件可以在 http://scalien.com 下载。
+:sup:`译注`，PaxosLease用于Master的租约协商。Keyspace作为PaxosLease的参考实现，包含了很多实践上的优化。由于基于开源AGPL许可，感兴趣的读者可以自由获取Keyspace实现。源代码和二进制文件可以在 http://scalien.com [*]_\
+:sup:`译注` 下载。
 
 .. _genealogy:
 
@@ -283,3 +284,5 @@ Paxos》中描述的Fatlease解决了和PaxosLease一样的问题，但它结构
 .. [*] 另一个解决方法是，让系统阻塞，但是引入一个“撤销”机制，让一个请求者撤销他们的请求从而让某个请求者可以获得租约。
 
 .. [*] 译注，scalien的GitHub代码工程在 https://github.com/scalien
+
+.. [*] 译注，这个网站已经没有内容了，Keyspace源代码可以在 https://github.com/scalien/keyspace 下载。
