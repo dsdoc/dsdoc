@@ -16,16 +16,9 @@
 
   ``dsdoc`` 是 `Distributed System DOCuments` 的缩写，即分布式系统文档。
 
-  当然你也可以把 ``ds`` 方便记成 `屌丝`，这样 ``dsdoc`` 就可以记成 `屌丝文档` 。 :)
+  当然你也可以把 ``ds`` 记成是 `屌丝`，这样 ``dsdoc`` 就可以记成是 `屌丝文档` 。 :-)
 
-
-目录
-==================
-
-.. toctree::
-   :maxdepth: 2
-
-   paxoslease/index
+.. include:: contents.inc
 
 索引表
 ==================

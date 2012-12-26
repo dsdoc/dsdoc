@@ -4,3 +4,5 @@
 随便逛逛吧 :) 
 
 :ref:`search`
+
+.. include:: contents.inc
