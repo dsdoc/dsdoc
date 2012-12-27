@@ -42,7 +42,7 @@ master_doc = 'index'
 # General information about the project.
 project = u'dsdoc'
 description = u'distributed system documents'
-copyright = u'2012, Jerry Lee'
+copyright = u'2012, dsdoc.net'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -185,7 +185,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'dsdoc.tex', u'dsdoc',
-   u'Jerry Lee', 'manual'),
+   u'dsdoc.net', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -215,7 +215,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'dsdoc', u'distrited system documents',
-     [u'Jerry Lee'], 1)
+     [u'dsdoc.net'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -229,7 +229,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'dsdoc', u'dsdoc',
-   u'Jerry Lee', 'dsdoc', description,
+   u'dsdoc.net', 'dsdoc', description,
    'Miscellaneous'),
 ]
 
@@ -247,9 +247,9 @@ texinfo_documents = [
 
 # Bibliographic Dublin Core info.
 epub_title = u'dsdoc'
-epub_author = u'Jerry Lee'
-epub_publisher = u'Jerry Lee'
-epub_copyright = u'2012, Jerry Lee'
+epub_author = u'dsdoc.net'
+epub_publisher = u'dsdoc.net'
+epub_copyright = u'2012, dsdoc.net'
 
 # The language of the text. It defaults to the language option
 # or en if the language is not set.
