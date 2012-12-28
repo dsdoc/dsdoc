@@ -4,4 +4,5 @@
 .. toctree::
    :maxdepth: 2
 
+   paxosmadesimple/index
    paxoslease/index
