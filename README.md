@@ -4,6 +4,7 @@
 dsdoc工程翻译和整理经典的分布式系统文档，主要是论文翻译。
 
 - dsdoc网站：[http://dsdoc.net/](http://dsdoc.net/)
+- 新浪微博：[@dsdoc](http://weibo.com/dsdoc)
 - Sphinx代码工程：[https://github.com/dsdoc/dsdoc](https://github.com/dsdoc/dsdoc)
 - GitHub Web Hosting工程：[https://github.com/dsdoc/dsdoc.github.com](https://github.com/dsdoc/dsdoc.github.com)
 

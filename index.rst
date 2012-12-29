@@ -12,11 +12,15 @@
 
 .. note::
 
-  dsdoc是什么意思？
+   dsdoc是什么意思？
 
-  ``dsdoc`` 是 `Distributed System DOCuments` 的缩写，即分布式系统文档。
+   ``dsdoc`` 是 `Distributed System DOCuments` 的缩写，即分布式系统文档。
 
-  当然你也可以把 ``ds`` 记成是 `屌丝`，这样 ``dsdoc`` 就可以记成是 `屌丝文档` 。 :-)
+   当然你也可以把 ``ds`` 记成是 `屌丝`，这样 ``dsdoc`` 就可以记成是 `屌丝文档` 。 :-)
+
+新浪微博： `@dsdoc <http://weibo.com/dsdoc>`_
+
+Sphinx代码工程： https://github.com/dsdoc/dsdoc
 
 .. include:: contents.inc
 
