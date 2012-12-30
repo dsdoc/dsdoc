@@ -1,6 +1,6 @@
 .. highlight:: c
 
-.. _paxos:
+.. _paxos-complex:
 
 ===============================================
 【译】Paxos Made Moderately Complex
@@ -16,20 +16,20 @@
 
         `Jerry Lee oldratlee<at>gmail<dot>com <http://oldratlee.com>`_
 
-Robbert van Renesse
-Cornell University
-rvr@cs.cornell.edu
+| Robbert van Renesse
+| Cornell University
+| rvr@cs.cornell.edu
 
 2011/03/25
 
-.. _abstract:
+.. _paxos-complex-abstract:
 
 摘要
 ===============================================
 
 对于任何一个要实现Paxos的人，Paxos决不是一个简单的协议，尽管它基于相对简单的不变式。本论文给出了 *完全Paxos* （The full Paxos）（或称为Multi-Paxos）的命令式的伪代码，不会回避讨论各种各样的实现细节。前一部分的描述先不考虑协议的优化让方便理解。后一部分讨论算法的活性（Liveness），并列出让协议更实用的各种优化。
 
-.. _intro:
+.. _paxos-complex-intro:
 
 1 介绍
 ===============================================
@@ -41,7 +41,7 @@ Paxos [13]_ 是允许Crash失效的异步环境中用状态机复制的协议。
 * 在一个 *异步环境* 里，对计时上是没有要求的。时钟以任意的速度运行，网络通信消耗任意长的时间，状态机响应一个操作后执行转换消耗长的时间。这里用的术语“异步”不要和对象上的非阻塞操作（常常也被称为异步）混淆了。
 
 
-.. _references:
+.. _paxos-complex-references:
 
 参考文献
 ===============================================

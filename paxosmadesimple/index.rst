@@ -26,9 +26,11 @@
 
         `Jerry Lee oldratlee<at>gmail<dot>com <http://oldratlee.com>`_
 
-Leslie Lamport, 2001/11/01
+Leslie Lamport
 
-.. _translation-preface:
+2001/11/01
+
+.. _paxos-simple-translation-preface:
 
 译序
 =========================
@@ -39,26 +41,26 @@ Leslie Lamport, 2001/11/01
 
 根据Lamport的说法，当时的三个审稿人认为这篇文章虽然重要性不够但还有点意思，只是还应该把所有有关Paxos(Lamport在论文中虚构出的一个岛屿的名称)这一描述的地方全部删掉，但是Lamport觉得这些人太没幽默感了，也就没有按照他们要求的去做。以至于作者虽然在1990年就将它提交给了TOCS，但直到1998年才被发表。但是发表之后，很多人还是觉得原来那篇太难理解了，于是才产生了这一篇。不过现在回头再看，虽然当时Lamport的写作方式令文章被埋没了数年，但是也正因此才产生了如此有趣的一则轶闻，Paxos也成为该算法无可争议的名称，虽然另一篇文章《Viewstamped Replication: A New Primary Copy Method to Support Highly-Available Distributed Systems》在1988年就独立地提出了类Paxos的一致性算法。
 
-.. _abstract:
+.. _paxos-abstract:
 
 摘要
 =========================
 
 The Paxos algorithm, when presented in plain English, is very simple. [*]_:sup:`译注`
 
-.. _introduction:
+.. _paxos-introduction:
 
 1 导引
 =========================
 
 用于实现容错的分布式系统的Paxos算法，一直以来总是被认为很难理解，或许是因为对很多人来说，并不习惯以希腊故事展开的论文形式 [5]_ 。事实上，它应该是众多分布式算法中最简单易见的一个了。它的核心就是一个一致性算法——论文 [5]_ 中的“synod”算法。从下一个章节可以看出，它基本上就是根据一个一致性算法所必需满足的条件而顺理成章的呈现出来的。最后一个章节，我们还会通过将Paxos算法作为一个使用状态机的分布式系统构建模式中的一致性实现部分，来完整的描述它。这种使用状态机的方法来构建分布式系统最初是由论文 [4]_ 引入的，早已为人所熟知，而这篇论文估计也已经是分布式系统理论研究领域被引用地最广泛的了。
 
-.. _algorithm:
+.. _paxos-algorithm:
 
 2 一致性算法
 =========================
 
-.. _problem:
+.. _paxos-problem:
 
 2.1 问题描述
 -------------------------
@@ -83,7 +85,7 @@ The Paxos algorithm, when presented in plain English, is very simple. [*]_:sup:`
 
 * 消息在传输中可能花费任意的时间，可能会重复，丢失，但是不会被损坏。 [*]_:sup:`译注`
 
-.. _choosing:
+.. _paxos-choosing:
 
 2.2 提案的选定
 -------------------------
@@ -172,7 +174,7 @@ Proposer通过向某个Acceptors集合发送需要被通过的提案请求来产
 
 一个Proposer可能或产生多个提案，只要它是遵循如上的算法即可。它可以在任意时刻丢弃某个提案。(即使针对该提案的请求和响应在提案被丢弃很久后才到达，正确性依然可以保证)。如果某个Proposer已经在试图生成编号更大的提案，那么丢弃未尝不是一个好的选择。因此如果一个Acceptor因为已经收到更大编号的prepare请求而忽略某个prepare或者accept请求时，那么它也应当通知它的Proposer，然后该Proposer应该丢弃该提案。当然，这只是一个不影响正确性的性能优化。
 
-.. _learning:
+.. _paxos-learning:
 
 2.3 获取被选定的提案值
 -------------------------
@@ -185,7 +187,7 @@ Proposer通过向某个Acceptors集合发送需要被通过的提案请求来产
 
 由于消息的丢失，一个value被选定后，可能没有Learners会发现。Learner可以询问Acceptors它们通过了哪些提案，但是一个Acceptor出错，都有可能导致无法判断出是否已经有半数以上的Acceptors通过的提案。在这种情况下，只有当一个新的提案被选定时，Learners才能发现被选定的value。因此如果一个Learner想知道是否已经选定一个value，它可以让Proposer利用上面的算法产生一个提案。 [*]_:sup:`译注`
 
-.. _progress:
+.. _paxos-progress:
 
 2.4 进展性
 -------------------------
@@ -200,7 +202,7 @@ Proposer通过向某个Acceptors集合发送需要被通过的提案请求来产
 
 如果系统中有足够的组件(Proposer，Acceptors及通信网络)工作良好，通过选择一个特定的Proposer，活性就可以达到。著名的FLP结论 [1]_ 指出，一个可靠的Proposer选举算法要么利用随机性要么利用实时性来实现—比如使用超时机制。然而，无论选举是否成功，安全性都可以保证。 [*]_:sup:`译注`
 
-.. _implementation:
+.. _paxos-implementation:
 
 2.5 实现
 -------------------------
@@ -209,7 +211,7 @@ Paxos算法 [5]_ 假设了一组进程网络。在它的一致性算法中，每
 
 剩下的就是需要描述保证提案编号唯一性的机制了。不同的Proposers会从不相交的编号集合中选择自己的编号，这样任何两个Proposers就不会有相同编号的提案了。每个Proposer需要将它目前生成的最大编号的提案记录在可靠性存储设备中，然后用一个比已经使用的所有编号都大的提案开始Phase1。
 
-.. _state-machine:
+.. _paxos-state-machine:
 
 3 实现状态机模型
 =========================
@@ -242,7 +244,7 @@ Leader可以在它提出的命令141被选定前提出命令142。它发送的�
 
 如果服务器集合是变化的，那么必须有某种方式来决定哪些服务器来实现哪些一致性算法实例。最简单的方式就是通过状态机本身来完成。当前的服务器集合可以作为状态的一部分，同时可以通过某些状态机命令来改变。同时通过用执行完第 `i` 个状态机命令后的状态来描述执行一致性算法实例 `i + α` 的服务器集合，我们就能让Leader在执行完第 `i` 个状态机命令后可以提前获取 `α` 个状态机命令 [*]_:sup:`译注` 。这就提供了一种支持任意复杂的重配置算法的简单实现。 [*]_:sup:`译注`
 
-.. _references:
+.. _paxos-references:
 
 参考文献
 ===========================
@@ -253,7 +255,7 @@ Leader可以在它提出的命令141被选定前提出命令142。它发送的�
 .. [4] Leslie Lamport. Time, clocks, and the ordering of events in a distributed system. Communications of the ACM, 21(7):558–565, July 1978.
 .. [5] Leslie Lamport. The part-time parliament. ACM Transactions on Computer Systems, 16(2):133–169, May 1998.
 
-.. _notes:
+.. _paxos-notes:
 
 注释
 ===========================
@@ -300,7 +302,7 @@ Leader可以在它提出的命令141被选定前提出命令142。它发送的�
 
 .. [*] 译注。因为执行实例使用的都是同一个的提案编号计数器，这样它承诺不再通过小于 `n` 的提案，应该可以应用在所有执行实例上，而不影响正确性。
 
-.. [*] 译注。此处应该可以算是对于多个Paxos执行实例同时运行的情况的优化，内容类似于Wiki中提到的 `Multi-Paxos`_ 模式。根据wiki上的描述，如果Leader是相对稳定的，那么Phase1可能就是不必要的了，那么对于同一个Leader未来会参与的那些执行实例，是可以直接跳过Phase1的。但是，需要在每个value值中加上执行实例的编号。
+.. [*] 译注。此处应该可以算是对于多个Paxos执行实例同时运行的情况的优化，内容类似于Wiki中提到的 `Multi-Paxos <http://en.wikipedia.org/wiki/Paxos_(computer_science)#Multi-Paxos>`_ 模式。根据wiki上的描述，如果Leader是相对稳定的，那么Phase1可能就是不必要的了，那么对于同一个Leader未来会参与的那些执行实例，是可以直接跳过Phase1的。但是，需要在每个value值中加上执行实例的编号。
 
     该模式执行过程如下(图中一个竖线应该认为是一个参与者，比如Acceptor下有三个竖线，代表由三个Acceptor)。从图中可以看出，只有第一个执行执行了prepare过程，而在Leader进入稳定状态后，后续的执行实例直接进入了Phase2，同时执行实例的编号(即图中的I)被加入到了消息中：
 
@@ -333,8 +335,6 @@ Leader可以在它提出的命令141被选定前提出命令142。它发送的�
            |         |<---------X--X--X------>|->|  Accepted(N,I+1,W)
            |<---------------------------------X--X  Response
            |         |          |  |  |       |  |
-
-.. _Multi-Paxos: http://en.wikipedia.org/wiki/Paxos_(computer_science)#Multi-Paxos
 
 .. [*] 译注。那Phase1的花费呢？解释如下：“Leader的失败和新Leader的选举都是很少见的情况”，换句话说，大部分时间里Leader正常。Leader正常时，如果Majority的Proposer在Phase1承诺了编号 `n`，由于所有执行实例用同一个的提案编号计数器，即所有实例的Phase1都完成了，之后只提交Phase2消息即可。 [ Jerry Lee 补注 ]
 

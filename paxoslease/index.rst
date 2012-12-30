@@ -16,12 +16,12 @@
 
         `Jerry Lee oldratlee<at>gmail<dot>com <http://oldratlee.com>`_
 
-Marton Trencseni, mtrencseni@scalien.com
-Attila Gazso, agazso@scalien.com
+| Marton Trencseni, mtrencseni@scalien.com
+| Attila Gazso, agazso@scalien.com
 
 这篇论文描述了PaxosLease算法，一种用于租约协商的分布式算法。PaxosLease基于Paxos算法，但无需写盘和时钟同步。PaxosLease在开源的分布式复制KV存储Keyspace中被用来做Master租约协商。
 
-.. _intro:
+.. _paxoslease-intro:
 
 1. 介绍
 =====================
@@ -58,7 +58,7 @@ PaxosLease是Paxos的一个自然特化变种。因为在Paxos中假设结点个
 3. 消息丢失和乱序
 4. 传输中的消息延时
 
-.. _definitions:
+.. _paxoslease-definitions:
 
 2. 定义
 =====================
@@ -85,7 +85,7 @@ PaxosLease是Paxos的一个自然特化变种。因为在Paxos中假设结点个
 
 PaxosLease保证了 *租约不变式* ：在任何给定的时间点，不会有多余1个请求者持有租约。
 
-.. _basic-algorithm:
+.. _paxoslease-basic-algorithm:
 
 3. 基本算法
 =====================
@@ -184,7 +184,7 @@ PaxosLease保证了 *租约不变式* ：在任何给定的时间点，不会有
 
 有可能一个请求者在第3步和第5步中没有得到多数派接受者赞同响应。这种情况下，请求者可以休眠一会儿再重新从第1步用更高的投票编号执行算法。
 
-.. _proof:
+.. _paxoslease-proof:
 
 4. 租约不变式证明
 =====================
@@ -204,7 +204,7 @@ PaxosLease保证了 *租约不变式* ：在任何给定的时间点，不会有
 
 第二部分：在 `t`:sub:`acquire` 到 `t`:sub:`end` 的时间内，没有其它的请求者 `q` 能以 `b < b'` 的投票编号的请求来获得租约。为了持有租约，请求者 `q` 必须得到多数派接受者 `A'`:sub:`1` 给它发送空个准备响应。 令 `a` 为同时在 `A'`:sub:`1` 和 `A`:sub:`2` 的接受者。因为 `b < b'` ， `a` 必须是先接受了  `p` 的提案然后发送准备响应给 `q` 的。但是既然 `a` 接受了 `p` 的提案，如果它发送一个空个准备响应给 `q` 它的状态必须是空的，它的定时器必须已经过期了，即 `p` 的定时器过期了，因此 `p` 已经失去了租约。在 `p` 和 `q` 的租约之间没有重叠。
 
-.. _liveness:
+.. _paxoslease-liveness:
 
 5. 活性（Liveness）
 =====================
@@ -213,7 +213,7 @@ Paxos类型的算法比如PaxosLease，有动态死锁的可能：两个请求�
 
 Paxos类型的算法一个主要的优点是没有静态死锁，在朴素的投票算法中有说到。没有静态死锁是因为请求者可以覆盖接受者的状态，算法又保证了多数派是不会被覆盖的。
 
-.. _extending-leases:
+.. _paxoslease-extending-leases:
 
 6. 延长租约
 =====================
@@ -222,7 +222,7 @@ Paxos类型的算法一个主要的优点是没有静态死锁，在朴素的投
 
 为了适应这个需求，只要请求者的算法需要修改。要第3步中，如果多数派响应了空的提案或是 *已存在提案* （即这个提案中的该请求者的租约还没有过期），它可以再次提议自己为租约的持有者。这样允许请求者延长它的租约 *O(T)* 的时间。接受者的算法无需修改。
 
-.. _releasing-leases:
+.. _paxoslease-releasing-leases:
 
 7. 释放租约
 =====================
@@ -231,7 +231,7 @@ Paxos类型的算法一个主要的优点是没有静态死锁，在朴素的投
 
 为了适应这个需求，请求者可以发送一个特定释放消息给接受者，消息中包含了它要释放租给的投票编号。在发送释放消息之前，请求者把内部状态从“我持有租约”切换到“我没有持有租约”。当接受者收到释放租约时，查检是否与已接受的投票编号相同。如相同则清空自己的状态；否则不做任何操作。请求者也可以发送一个释放消息给其它请求者作为提示，告诉他们可以去获取租约了。
 
-.. _leases-for-many-resources:
+.. _paxoslease-for-many-resources:
 
 8. 多个资源的租约
 =====================
@@ -239,7 +239,7 @@ Paxos类型的算法一个主要的优点是没有静态死锁，在朴素的投
 算法定义了关于一个资源 *R* 的租约动作。在实践中，结点会要处理多个资源，比如一个分布式处理中要用的租约。PaxosLease可以为各个资源运行独立的实例，不同的实例的消息、请求者和接受者状态标志上 *资源标识* 。一个结点作为请求者和接受者，每个PaxosLease实例消耗内存不超过 ~100字节，这样结点上1G内存可以处理 ~1千万个资源租约。再加上PaxosLease不需要硬盘同步和时钟同步，该算法可以用在很多需要细粒度锁的场景上。
 
 
-.. _implementation:
+.. _paxoslease-implementation:
 
 9. 实现
 =====================
@@ -248,7 +248,7 @@ Paxos类型的算法一个主要的优点是没有静态死锁，在朴素的投
 :sup:`译注`，PaxosLease用于Master的租约协商。Keyspace作为PaxosLease的参考实现，包含了很多实践上的优化。由于基于开源AGPL许可，感兴趣的读者可以自由获取Keyspace实现。源代码和二进制文件可以在 http://scalien.com [*]_\
 :sup:`译注` 下载。
 
-.. _genealogy:
+.. _paxoslease-genealogy:
 
 10. 宗谱
 =====================
@@ -261,7 +261,7 @@ Service for Loosely-Coupled Distributed Systems》中描述的Google内部的分
 《FaTLease: Scalable Fault-Tolerant Lease Negotiation with
 Paxos》中描述的Fatlease解决了和PaxosLease一样的问题，但它结构更复杂，因为模仿了在Google论文中提到的多轮Paxos，而不是PaxosLease所用的简单的接受者状态超时。另外，FaTLease需要结点同步他们的时钟，这一点使的它在现实世界使用中没有吸引力。PaxosLease灵感来自于FaTLease，解决了上述的缺点。
 
-.. _references:
+.. _paxoslease-references:
 
 参考文献
 =====================
@@ -278,7 +278,7 @@ Paxos》中描述的Fatlease解决了和PaxosLease一样的问题，但它结构
 
 .. [6] AGPL License. http://www.fsf.org/licensing/licenses/agpl-3.0.html
 
-.. _note:
+.. _paxoslease-notes:
 
 注释
 =====================
