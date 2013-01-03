@@ -12,3 +12,18 @@
 {% if theme_collapsiblesidebar|tobool %}
 {% set script_files = script_files + ['_static/sidebar.js'] %}
 {% endif %}
+
+{% block document %}
+    <div class="documentwrapper">
+    {%- if render_sidebar %}
+      <div class="bodywrapper">
+    {%- endif %}
+        <div class="body">
+          {% block body %} {% endblock %}
+          {% include "comments.html" %}
+        </div>
+    {%- if render_sidebar %}
+      </div>
+    {%- endif %}
+    </div>
+{%- endblock %}
