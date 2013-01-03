@@ -18,10 +18,14 @@
 
    当然你也可以把 ``ds`` 记成是 `屌丝`，这样 ``dsdoc`` 就可以记成是 `屌丝文档` 。 :-)
 
+联系我们
+----------------------------------
+
 | 新浪微博： `@dsdoc <http://weibo.com/dsdoc>`_
-| Sphinx代码工程： https://github.com/dsdoc/dsdoc
-| `Yahoo邮件组订阅 <http://tech.groups.yahoo.com/group/dsdoc/>`_ ：**dsdoc-subscribe<at>yahoogroups.com** （给这个地址发一个空邮件后，会有确认邮件）
-|     邮件组地址： **dsdoc<at>yahoogroups.com** （要先订阅才能在邮件组发消息）
+| Yahoo邮件组：
+|     订阅： *dsdoc-subscribe<at>yahoogroups.com* （给这个地址发一个空邮件后，会有确认邮件）
+|     地址： *dsdoc<at>yahoogroups.com* （要先订阅才能在邮件组发消息）
+
 
 
 .. include:: contents.inc
