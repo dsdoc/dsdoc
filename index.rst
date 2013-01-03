@@ -18,6 +18,8 @@
 
    当然你也可以把 ``ds`` 记成是 `屌丝`，这样 ``dsdoc`` 就可以记成是 `屌丝文档` 。 :-)
 
+.. _contact_us:
+
 联系我们
 ----------------------------------
 
@@ -26,9 +28,9 @@
 |     订阅： *dsdoc-subscribe<at>yahoogroups.com* （给这个地址发一个空邮件后，会有确认邮件）
 |     地址： *dsdoc<at>yahoogroups.com* （要先订阅才能在邮件组发消息）
 
-
-
 .. include:: contents.inc
+
+.. _index_table:
 
 索引表
 ==================
