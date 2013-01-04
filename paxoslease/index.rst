@@ -245,7 +245,7 @@ Paxos类型的算法一个主要的优点是没有静态死锁，在朴素的投
 =====================
 
 在Scalien的分布式复制key-value存储Keyspace中 [*]_\
-:sup:`译注`，PaxosLease用于Master的租约协商。Keyspace作为PaxosLease的参考实现，包含了很多实践上的优化。由于基于开源AGPL许可，感兴趣的读者可以自由获取Keyspace实现。源代码和二进制文件可以在 http://scalien.com [*]_\
+:sup:`译注`，PaxosLease用于Master的租约协商。Keyspace作为PaxosLease的参考实现，包含了很多实践上的优化。由于基于开源AGPL许可 [6]_ ，感兴趣的读者可以自由获取Keyspace实现。源代码和二进制文件可以在 http://scalien.com [*]_\
 :sup:`译注` 下载。
 
 .. _paxoslease-genealogy:
@@ -253,10 +253,10 @@ Paxos类型的算法一个主要的优点是没有静态死锁，在朴素的投
 10. 宗谱
 =====================
 
-Leslie Lamport在1990年发明Paxos算法，但在1998才发表的。这篇论文《The Part-Time Parliament》对于很多读者过于极客，这导致第二篇论文《Paxos Made Simple》。Paxos通过引入个准备和提议两个阶段和让接受者在响应消息前把自己状态写入稳定存储，解决了发布式一致性问题。多轮的Paxos可以顺序运行以协调复制状态机的状态转换。
+Leslie Lamport在1990年发明Paxos算法，但在1998才发表的。这篇论文《The Part-Time Parliament》对于很多读者过于极客，这导致第二篇论文《Paxos Made Simple》 [2]_ 。Paxos通过引入个准备和提议两个阶段和让接受者在响应消息前把自己状态写入稳定存储，解决了发布式一致性问题。多轮的Paxos可以顺序运行以协调复制状态机的状态转换。
 
 在论文《Paxos Made Live - An Engineering Perspective》和《The Chubby Lock
-Service for Loosely-Coupled Distributed Systems》中描述的Google内部的分布式实现栈用了Paxos，这让Paxos流行起来。在Google的Chubby中，多轮顺序执行Paxos以达到，在复制数据库中下次写操作上的一致性，提供了思考复制状态机的另一种方法。
+Service for Loosely-Coupled Distributed Systems》 [4]_ 中描述的Google内部的分布式实现栈用了Paxos，这让Paxos流行起来。在Google的Chubby中，多轮顺序执行Paxos以达到，在复制数据库中下次写操作上的一致性，提供了思考复制状态机的另一种方法。
 
 《FaTLease: Scalable Fault-Tolerant Lease Negotiation with
 Paxos》中描述的Fatlease解决了和PaxosLease一样的问题，但它结构更复杂，因为模仿了在Google论文中提到的多轮Paxos，而不是PaxosLease所用的简单的接受者状态超时。另外，FaTLease需要结点同步他们的时钟，这一点使的它在现实世界使用中没有吸引力。PaxosLease灵感来自于FaTLease，解决了上述的缺点。
