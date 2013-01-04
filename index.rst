@@ -28,9 +28,11 @@
 |     订阅： *dsdoc-subscribe<at>yahoogroups.com* （给这个地址发一个空邮件后，会有确认邮件）
 |     地址： *dsdoc<at>yahoogroups.com* （要先订阅才能在邮件组发消息）
 
+.. _index-contents:
+
 .. include:: contents.inc
 
-.. _index_table:
+.. _index-table:
 
 索引表
 ==================

@@ -1,8 +1,12 @@
+:orphan:
+
 没有这个页面
 ====================
 
 随便逛逛吧 :) 
 
 :ref:`search`
+
+.. _404-contents:
 
 .. include:: contents.inc
