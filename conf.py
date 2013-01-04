@@ -25,7 +25,7 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.intersphinx', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.intersphinx', 'sphinx.ext.viewcode', 'sphinx.ext.mathjax']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -163,6 +163,8 @@ html_last_updated_fmt = '%Y-%m-%d'
 
 # This is the file name suffix for HTML files (e.g. ".xhtml").
 #html_file_suffix = None
+
+mathjax_path='http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'dsdoc'
