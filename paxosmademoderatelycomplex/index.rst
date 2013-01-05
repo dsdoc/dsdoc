@@ -40,6 +40,52 @@ Paxos [13]_ 是允许Crash失效的异步环境中用状态机复制的协议。
 
 * 在一个 *异步环境* 里，对计时上是没有要求的。时钟以任意的速度运行，网络通信消耗任意长的时间，状态机响应一个操作后执行转换消耗长的时间。这里用的术语“异步”不要和对象上的非阻塞操作（常常也被称为异步）混淆了。
 
+* 如果状态机没有不再执行转换并且它的当前状态永远固定，则它已经经历了Crash失效（Failure）。没有其它的状态机失效，比如执行没有说明的转换，是不允许的。在一个“失效停止的环境”中 [21]_ ，Crash失效可以被可靠的检测到；但在一个异步环境中，做不到这一点。
+
+* 状态机复制（State Machine Replication，SMR） [12]_ [22]_ 是一种掩盖失效的技术，特殊是Crash失效。一组确定状态机的Replica创建后，Replica提供的是一致的操作序列，所以最终它们会处于相同的状态并生成一致的输出序列。这里假设至少有一个Replica从没有Crash过。
+
+确定状态机用来建模服务器的处理，比如文件服务器、DNS服务器等等。客户进程使用“stub routine”库通过网络给服务器发送 *命令* 。一个命令是一个三元组 ``<κ, cid, operation>``， κ [*]_:sup:`译注` 是发出命令的客户进程的标识符， *cid* 是客户本地唯一的命令标识符（比如是一个序列号）。命令标识符必须包含在服务器的响应中，这样客户端才能把服务器响应和发出去的命令匹配起来。在状态机复制中，stub routine会被替换掉，以制造远程服务器是高可用的假象。stub routine把命令发给所有的Replica，只有有一个响应就返回。
+
+因为命令可能以不同的顺序到达Replica，所以多客户端带来的一个困难是Replica可能最终执行的是不同的转换，生成不同的输出，进而最终会有不同的当前状态。像Paxos这样的协议保证这种情况不会发生： 复制了的状态机逻辑行为和一个没有Crash [9]_ 的远程状态机一致。
+
+进程是可能Crash的，我们假设进程间消息是可靠的（没有必要是FIFO的）：
+
+* 从一个没有错误（non-faulty）的进程发送另一个没有错误进程的消息最终会被目标进程收到（至少一次）。
+
+* 如果一个进程收到了一条消息，则这条消息是由某个进程发送的（这个进程可能是出错的进程）。也就是说，消息没有被篡改过，也不会凭空出现。
+
+本论文给出了 *多维Paxos协议* （multi-decree Paxos protocol） 的 *操作说明* ，有时这个协议也被称为是 *multi-Paxos* 。单维Paxos是非常容易被理解，是 [15]_ [14]_ 等论文的主题。但是多维Paxos协议（或一些它的变种）正是被用到像Chubby [4]_ 和 ZooKeeper [10]_ 这样的工业强度系统中的协议。
+
+.. _paxos-complex-how-why:
+
+2 Paoxs如何工作和为什么能工作
+===============================================
+
+Replicas and Slots
+------------------------------------
+
+为了容忍 ``f`` 个Replica Crash，Paxos需要 ``f + 1`` 个Replica。当 ``κ`` 要执行命令 ``<κ, cid, op>`` 时，它需要广播消息 ``<*Request*, κ, cid, operation>>`` 给所有的Replica并等待有一个Replica的消息 ``<*Response*, cid, result>>`` 。
+
+Replica可以被认为有一序列的Slot可以用于填入命令。每个Slot有一个Slot编号。Replica当收到消息 ``<request, p>`` 后，提交命令 p 到没有使用的最低编号的Slote中。有客户端并发操作的情况，不同的Replica可能在同一个Slot中提交不同的命令。为了避免这种不一致，Replica在真正更新状态前等待Slot的确定，计算出响应发回给客户端。
+
+Replica没有必要在任何时间都是一致的。他们可能在不同的Slot中提交不同的命令。但是Replica在应用状态上执行的操作的顺序是一致的。图1 中是Replica的伪代码。任一个Replica ρ 维护了4个变量：
+
+* ρ.state ，（外部不得见的）应用状态。所有的Replica的初始状态是相同的。
+
+* ρ.slot_num ，Replica的当前slot编号（等价于状态的版本，初始值是1）。它包含的是在更新应用状态前下一个需要Learn决定的Slot。
+
+* ρ.proposals ， <Slot编号, 命令>对的一个集合，Replica过去提交了的提案，初始值是 *空* 。
+
+* ρ.decisions ，<Slot编号, 命令>对的一个集合，对应已经决定了的Slot，初始值也是 *空* 。
+
+在给出Replica的操作说明之前，我们先陈述一下Replica的这些持有变量中的一些重要的不变式：
+
+R1: 在相同的Slot中，已经决定了的命令没有2个是不同的： ∀s, ρ1, ρ2, p1, p2 : <s, p1> ∈ ρ1.decisions ∧ <s, p2> ∈ ρ2.decisions ⇒ p1 = p2
+
+.. figure:: figure1.png
+   :scale: 100
+
+   图1：Replica的伪代码
 
 .. _paxos-complex-references:
 
@@ -91,3 +137,10 @@ Paxos [13]_ 是允许Crash失效的异步环境中用状态机复制的协议。
 .. [22] F.B. Schneider. Implementing fault-tolerant ser-vices using the state machine approach: A tuto-rial. ACM Computing Surveys, 22(4):299-319, December 1990.
 
 .. [23] R.H. Thomas. A solution to the concurrency control problem for multiple copy databases. In Proc. of COMPCON 78 Spring, pages 88-93, Washington, D.C., February 1978. IEEE Com-puter Society.
+
+.. _paxos-complex-notes:
+
+注释
+=====================
+
+.. [*] 和 [13]_ 一样，使用希腊字母来标识进程。

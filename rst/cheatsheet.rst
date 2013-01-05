@@ -61,6 +61,25 @@ yourself that the math is properly set up.  For example：
 Euler's identity, equation :eq:`euler`, was elected one of the most
 beautiful mathematical formulas.
 
+math demo:
+
+.. math::
+
+    \begin{equation*}
+        \left.\begin{aligned}
+            B'&=-\partial\times E,\\
+            E'&=\partial\times B - 4\pi j,
+        \end{aligned}\right\}
+        \qquad \text{Maxwell's equations}
+    \end{equation*}
+
+.. math::
+
+    P_{r-j}=\begin{cases}
+        0& \text{if $r-j$ is odd},\\
+        r!\,(-1)^{(r-j)/2}& \text{if $r-j$ is even}.
+    \end{cases}
+
 Math Char
 -------------------------------------
 
