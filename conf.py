@@ -164,7 +164,7 @@ html_last_updated_fmt = '%Y-%m-%d'
 # This is the file name suffix for HTML files (e.g. ".xhtml").
 #html_file_suffix = None
 
-mathjax_path='http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default'
+mathjax_path='http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'dsdoc'
